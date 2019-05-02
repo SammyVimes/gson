@@ -462,7 +462,7 @@ public class ParameterizedTypesTest extends TestCase {
       return true;
     }
   }
-  
+
   // Begin: tests to reproduce issue 103
   private static class Quantity {
     @SuppressWarnings("unused")
@@ -478,21 +478,21 @@ public class ParameterizedTypesTest extends TestCase {
   }
   private interface Immutable {
   }
-  
-  public static final class Amount<Q extends Quantity> 
+
+  public static final class Amount<Q extends Quantity>
       implements Measurable<Q>, Field<Amount<?>>, Serializable, Immutable {
     private static final long serialVersionUID = -7560491093120970437L;
 
     int value = 30;
   }
-  
+
   public void testDeepParameterizedTypeSerialization() {
     Amount<MyQuantity> amount = new Amount<MyQuantity>();
     String json = gson.toJson(amount);
     assertTrue(json.contains("value"));
     assertTrue(json.contains("30"));
   }
-  
+
   public void testDeepParameterizedTypeDeserialization() {
     String json = "{value:30}";
     Type type = new TypeToken<Amount<MyQuantity>>() {}.getType();

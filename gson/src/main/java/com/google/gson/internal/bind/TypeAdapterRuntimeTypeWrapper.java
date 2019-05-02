@@ -16,11 +16,13 @@
 package com.google.gson.internal.bind;
 
 import java.io.IOException;
+import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 
 import com.google.gson.Gson;
 import com.google.gson.TypeAdapter;
+import com.google.gson.internal.$Gson$Types;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
@@ -73,9 +75,21 @@ final class TypeAdapterRuntimeTypeWrapper<T> extends TypeAdapter<T> {
    * Finds a compatible runtime type if it is more specific
    */
   private Type getRuntimeTypeIfMoreSpecific(Type type, Object value) {
-    if (value != null
-        && (type == Object.class || type instanceof TypeVariable<?> || type instanceof Class<?>)) {
-      type = value.getClass();
+    if (value != null) {
+
+      if (type == Object.class || type instanceof TypeVariable<?> || type instanceof Class<?>) {
+        type = value.getClass();
+      }
+
+      if (type instanceof ParameterizedType) {
+        ParameterizedType parameterizedType = (ParameterizedType) type;
+        if (!parameterizedType.getRawType().equals(type)) {
+          Class<?> realClass = value.getClass();
+          Type ownerType = parameterizedType.getOwnerType();
+          return $Gson$Types.newParameterizedTypeWithOwner(ownerType, realClass, parameterizedType.getActualTypeArguments());
+        }
+      }
+
     }
     return type;
   }

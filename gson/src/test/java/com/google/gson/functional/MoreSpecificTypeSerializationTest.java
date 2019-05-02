@@ -71,19 +71,17 @@ public class MoreSpecificTypeSerializationTest extends TestCase {
   }
 
   /**
-   * For parameterized type, Gson ignores the more-specific type and sticks to the declared type
+   * For parameterized type, Gson uses more-specific type
    */
   public void testParameterizedSubclassFields() {
     ClassWithParameterizedBaseFields target = new ClassWithParameterizedBaseFields(
         new ParameterizedSub<String>("one", "two"));
     String json = gson.toJson(target);
-    assertTrue(json.contains("\"t\":\"one\""));
-    assertFalse(json.contains("\"s\""));
+    assertEquals("{\"b\":{\"s\":\"two\",\"t\":\"one\"}}", json);
   }
 
   /**
-   * For parameterized type in a List, Gson ignores the more-specific type and sticks to
-   * the declared type
+   * For parameterized type in a List, Gson uses more-specific type
    */
   public void testListOfParameterizedSubclassFields() {
     Collection<ParameterizedBase<String>> list = new ArrayList<ParameterizedBase<String>>();
@@ -92,13 +90,11 @@ public class MoreSpecificTypeSerializationTest extends TestCase {
     ClassWithContainersOfParameterizedBaseFields target =
       new ClassWithContainersOfParameterizedBaseFields(list, null);
     String json = gson.toJson(target);
-    assertTrue(json, json.contains("{\"t\":\"one\"}"));
-    assertFalse(json, json.contains("\"s\":"));
+    assertEquals("{\"collection\":[{\"t\":\"one\"},{\"s\":\"three\",\"t\":\"two\"}]}", json);
   }
 
   /**
-   * For parameterized type in a map, Gson ignores the more-specific type and sticks to the
-   * declared type
+   * For parameterized type in a map, Gson uses more-specific type
    */
   public void testMapOfParameterizedSubclassFields() {
     Map<String, ParameterizedBase<String>> map = new HashMap<String, ParameterizedBase<String>>();
@@ -110,7 +106,7 @@ public class MoreSpecificTypeSerializationTest extends TestCase {
     assertEquals("one", json.get("base").getAsJsonObject().get("t").getAsString());
     JsonObject sub = json.get("sub").getAsJsonObject();
     assertEquals("two", sub.get("t").getAsString());
-    assertNull(sub.get("s"));
+    assertEquals("three", sub.get("s").getAsString());
   }
 
   private static class Base {
